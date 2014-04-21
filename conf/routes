@@ -11,6 +11,7 @@ GET     /signup                     controllers.SignUp.form
 POST    /signup                     controllers.SignUp.submit
 GET     /login                      controllers.SignUp.login(user : Option[String])
 POST    /login                      controllers.SignUp.loginSubmit(user : Option[String])
+GET     /logout                     controllers.SignUp.logout
 
 # Contact
 GET     /contacts                   controllers.Contacts.form

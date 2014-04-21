@@ -146,6 +146,8 @@ object SignUp extends Controller {
     Redirect(routes.Application.index).withSession(session - "adminName" - "adminPass")
   }
 
+  def logout = Action {implicit request => loginUnsuccesful}
+
   def loginSubmit(username : Option[String]) = Action.async {implicit request =>
     val credentials = loginForm.bindFromRequest.get
     credentials.check.map(isAdmin =>
