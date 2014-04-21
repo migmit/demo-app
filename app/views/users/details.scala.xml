@@ -1,0 +1,10 @@
+@(user: User)
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+<name>@user.username</name>
+<password>@user.password</password>
+<email>@user.email</email>
+<country>@user.profile.country</country>
+<address>@user.profile.address</address>
+<age>@user.profile.age</age>
+</root>

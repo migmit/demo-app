@@ -1,0 +1,21 @@
+@(user: User)
+
+@title = {
+  User @user.username
+}
+
+@main(title) {
+Name: @user.username<br />
+Password: &lt;secret&gt;<br />
+Email: @user.email<br />
+Country: @user.profile.country<br />
+Address: @user.profile.address match {
+  case None => {&lt;none&gt;}
+  case Some(a) => {a}
+}<br />
+Age: @user.profile.age match {
+  case None => {&lt;none&gt;}
+  case Some(a) => {@a}
+}<br />
+<a class="btn" href="@(routes.SignUp.editForm(user.username))" />Edit<a>
+}

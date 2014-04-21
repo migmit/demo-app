@@ -1,0 +1,15 @@
+@(email: String, users: Seq[User])
+
+@title = {
+  List of users with email address @email
+}
+
+@main(title) {
+    <ul>
+    @for(user <- users) {
+        <li>
+	  <a href="@(routes.AllUsers.details(user.username))">@user.username</a>
+        </li>
+    }
+    </ul>
+}

@@ -1,0 +1,25 @@
+@(username : Option[String], credentials : Form[SignUp.Credentials])
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@main(Html("Login"), nav = "signup") {
+    @helper.form(action = routes.SignUp.loginSubmit(username)) {
+        <fieldset>
+            <legend>Administrator credentials</legend>
+            @inputText(
+                credentials("name"), 
+                '_label -> "Admin name"
+            )
+            @inputPassword(
+                credentials("password"), 
+                '_label -> "Password"
+            )
+        </fieldset>       
+        <div class="actions">
+            <input type="submit" class="btn primary" value="Login" />
+            <a href="@routes.Application.index" class="btn">Cancel</a>
+        </div>
+        
+    }
+}

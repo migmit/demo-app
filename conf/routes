@@ -7,8 +7,10 @@ GET     /                           controllers.Application.index
 
 # Signup
 GET     /signup                     controllers.SignUp.form
-GET     /users/fakeuser             controllers.SignUp.editForm
+#GET     /users/fakeuser             controllers.SignUp.editForm
 POST    /signup                     controllers.SignUp.submit
+GET     /login                      controllers.SignUp.login(user : Option[String])
+POST    /login                      controllers.SignUp.loginSubmit(user : Option[String])
 
 # Contact
 GET     /contacts                   controllers.Contacts.form
@@ -17,3 +19,12 @@ POST    /contacts                   controllers.Contacts.submit
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+# Userlist
+
+GET     /users                      controllers.AllUsers.list
+GET     /signup/:name.xml           controllers.AllUsers.xml(name)
+GET     /signup/:name.json          controllers.AllUsers.json(name)
+GET     /signup/:email              controllers.AllUsers.lookup(email)
+GET     /users/details/:name        controllers.SignUp.editForm(name)
+GET     /users/:name                controllers.AllUsers.details(name)

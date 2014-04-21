@@ -1,0 +1,16 @@
+@(users: Seq[User])
+
+@main(Html("List of all users")) {
+    <ul>
+    @for(user <- users) {
+        <li>
+            Name: @user.username<br />
+            Password: @user.password<br />
+            Email: @user.email<br />
+            Country: @user.profile.country<br />
+            Address: @user.profile.address<br />
+            Age: @user.profile.age
+        </li>
+    }
+    </ul>
+}
