@@ -3,3 +3,14 @@ Demo App
 you will need to install:
 - play 2.2.X http://www.playframework.com/download (classic distribution)
 - redis http://redis.io/download
+
+To use admin interface, you'll need to manually add to Redis
+- set "admins" of admin names
+- for each name, the string with the key "admin.<name>", whose value is a password
+
+So, for example, if you want to use "migmit" as an admin name, with password "secret", you shoud issue the following commands in Redis console:
+
+    SADD "admins" "migmit"
+    SET "admin.migmit" "secret"
+
+Admin doesn't have to be a regular user, they are completely independent entities.
