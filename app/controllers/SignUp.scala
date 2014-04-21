@@ -152,11 +152,11 @@ object SignUp extends Controller {
     val credentials = loginForm.bindFromRequest.get
     credentials.check.map(isAdmin =>
       if (isAdmin) {
-        val Response = username match {
+        val response = username match {
           case None => Redirect(routes.SignUp.form)
           case Some(name) => Redirect(routes.SignUp.editForm(name))
         }
-        Response.withSession(
+        response.withSession(
           session +
             ("adminName" -> credentials.name) +
             ("adminPass" -> credentials.password)
