@@ -16,33 +16,32 @@ import models._
 import utils.RedisUser
 
 object AllUsers extends Controller {
+  def allUsers : Future[Seq[User]] = {
+    for {
+      userNames <- RedisUser.allUserNames
+      users <- Future.sequence(
+        for {name <- userNames}
+        yield RedisUser.readUser(name)
+      )
+    } yield users.flatten
+  }
   def list = Action.async {
-    val allUsers = RedisUser.allUserNames
-    allUsers.flatMap {
-      userNames =>
-      Future.sequence(for(userName <- userNames) yield RedisUser.readUser(userName))
-    }.map {users => Ok(html.users.list(users.flatten))}
+    for {users <- allUsers}
+    yield Ok(html.users.list(users))
   }
   def lookup(email : String) = Action.async {
-    val allUsers = RedisUser.allUserNames
-    allUsers.flatMap {
-      userNames =>
-      Future.sequence(for(userName <- userNames) yield RedisUser.readUser(userName))
-    }.map {
-      users =>
-      val goodUsers = users.flatten.filter(user => user.email == email)
-      Ok(html.users.lookup(email, goodUsers))
-    }
+    for {users <- allUsers}
+    yield Ok(html.users.lookup(email, users.filter(_.email == email)))
   }
   def details(name : String) = Action.async {
-    for (user <- RedisUser.readUser(name))
+    for {user <- RedisUser.readUser(name)}
     yield user match {
       case Some(u) => Ok(html.users.details(u))
       case None => BadRequest(html.users.error(name))
     }
   }
   def json(name : String) = Action.async {
-    for (user <- RedisUser.readUser(name))
+    for {user <- RedisUser.readUser(name)}
     yield user match {
       case Some(u) => Ok(Json.obj(
         "username" -> u.username,
@@ -56,7 +55,7 @@ object AllUsers extends Controller {
     }
   }
   def xml(name : String) = Action.async {
-    for (user <- RedisUser.readUser(name))
+    for {user <- RedisUser.readUser(name)}
     yield user match {
       case Some(u) => Ok(views.xml.users.details(u))
       case None => BadRequest(views.xml.users.error(name))
