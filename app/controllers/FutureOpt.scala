@@ -22,9 +22,9 @@ case class FutureOpt[R](
         case Some(r) => f(r).get
       }
     ))
-  def getOrElse(other : Future[R]) : Future[R] =
+  def getOrElse(other : R) : Future[R] =
     impl.flatMap {_ match {
-      case None => other
+      case None => Future(other)
       case Some(r) => Future(r)
     }}
 }

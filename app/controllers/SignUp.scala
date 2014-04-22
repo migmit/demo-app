@@ -78,7 +78,7 @@ object SignUp extends Controller {
           _ <- FutureOpt.assert(RedisUser.isAdminName(name))
           pass <- FutureOpt.lift(RedisUser.adminPassword(name))
         } yield pass == Some(password)
-      ) getOrElse Future(false)
+      ) getOrElse false
     }
   }
 
@@ -104,7 +104,7 @@ object SignUp extends Controller {
     (
       for {_ <- FutureOpt.assert(Credentials.check)}
       yield Ok(html.signup.form(signupForm))
-    ) getOrElse Future(Redirect(routes.SignUp.login(None)))
+    ) getOrElse Redirect(routes.SignUp.login(None))
   }
   
   /**
@@ -117,9 +117,9 @@ object SignUp extends Controller {
         response <- FutureOpt.lift((
           for {user <- FutureOpt(RedisUser.readUser(username))}
           yield Ok(html.signup.form(signupForm.fill(user)))
-        ) getOrElse Future(BadRequest(html.users.error(username))))
+        ) getOrElse BadRequest(html.users.error(username)))
       } yield response
-    ) getOrElse Future(Redirect(routes.SignUp.login(Some(username))))
+    ) getOrElse Redirect(routes.SignUp.login(Some(username)))
   }
   
   /**
