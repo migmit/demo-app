@@ -10,7 +10,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 import views._
 import models._
-import utils.RedisUser
+import utils._
 
 object SignUp extends Controller {
   
@@ -26,7 +26,7 @@ object SignUp extends Controller {
     mapping(
       "username" -> text(minLength = 4).verifying(
           "Username should start from uppercase letter",
-          username => username.head.isUpper
+          _.head.isUpper
       ),
       "email" -> email,
       
@@ -73,19 +73,21 @@ object SignUp extends Controller {
     password : String
   ) {
     def check : Future[Boolean] = {
-      RedisUser.isAdminName(name).flatMap(isAdmin =>
-        if (isAdmin) RedisUser.adminPassword(name).map(pass => pass == Some(password))
-        else Future(false)
-      )
+      (
+        for {
+          _ <- FutureOpt.assert(RedisUser.isAdminName(name))
+          pass <- FutureOpt.lift(RedisUser.adminPassword(name))
+        } yield pass == Some(password)
+      ) getOrElse false
     }
   }
 
   object Credentials {
     def fromSession(implicit request : RequestHeader) : Option[Credentials] = {
-      for (
-        name <- session.get("adminName");
+      for {
+        name <- session.get("adminName")
         pass <- session.get("adminPass")
-      ) yield Credentials(name, pass)
+      } yield Credentials(name, pass)
     }
     def check(implicit request : RequestHeader) : Future[Boolean] = {
       fromSession match {
@@ -99,26 +101,25 @@ object SignUp extends Controller {
    * Display an empty form.
    */
   def form = Action.async {implicit request =>
-    Credentials.check.map {isAdmin =>
-      if (isAdmin) Ok(html.signup.form(signupForm))
-      else Redirect(routes.SignUp.login(None))
-    }
+    (
+      for {_ <- FutureOpt.assert(Credentials.check)}
+      yield Ok(html.signup.form(signupForm))
+    ) getOrElse Redirect(routes.SignUp.login(None))
   }
   
   /**
    * Display a form pre-filled with an existing User.
    */
   def editForm(username : String) = Action.async {implicit request =>
-    Credentials.check.flatMap {isAdmin =>
-      if (isAdmin) {
-        RedisUser.readUser(username).map(u => u match {
-          case Some(user) => Ok(html.signup.form(signupForm.fill(user)))
-          case None => BadRequest(html.users.error(username))
-        })
-      } else {
-        Future(Redirect(routes.SignUp.login(Some(username))))
-      }
-    }
+    (
+      for {
+        _ <- FutureOpt.assert(Credentials.check)
+        response <- FutureOpt.lift((
+          for {user <- FutureOpt(RedisUser.readUser(username))}
+          yield Ok(html.signup.form(signupForm.fill(user)))
+        ) getOrElse BadRequest(html.users.error(username)))
+      } yield response
+    ) getOrElse Redirect(routes.SignUp.login(Some(username)))
   }
   
   /**
@@ -130,7 +131,7 @@ object SignUp extends Controller {
       errors => Future(BadRequest(html.signup.form(errors))),
       
       // We got a valid User value, display the summary
-      user => for (_ <- RedisUser.writeUser(user)) yield Ok(html.signup.summary(user))
+      user => for {_ <- RedisUser.writeUser(user)} yield Ok(html.signup.summary(user))
     )
   }
 
