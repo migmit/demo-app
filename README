@@ -14,3 +14,5 @@ So, for example, if you want to use "migmit" as an admin name, with password "se
     SET "admin.migmit" "secret"
 
 Admin doesn't have to be a regular user, they are completely independent entities.
+
+Hahaha
